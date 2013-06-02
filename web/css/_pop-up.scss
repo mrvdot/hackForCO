@@ -53,6 +53,7 @@
 }
 
 .my-icon-shout-pin {
+    @extend .icon-shout-pin;
     font-size: 30px;
     color: $blue-dark;
     position: absolute;

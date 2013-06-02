@@ -28,18 +28,21 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       mapCoords = mapDiv.position();
     });
 
+    var shoutCount = 0;
+
     function displayShout (shout, own) {
       var div = jQuery(shoutTpl.replace('$TEXT',shout.text));
       var coords = shout.location;
       var pt = map.toScreen(new Point(coords.longitude, coords.latitude));
       div.css({
+        zIndex : 1000 + shoutCount++,
         left : pt.x,
         top : pt.y
       });
       jQuery('.wrap').prepend(div).find('p').slideDown();
       setTimeout(function() {
         if (!activeShouts) {
-          mapDebug = activeShouts = jQuery('.shout-box-wrapper');
+          activeShouts = jQuery('.shout-box-wrapper');
         } else {
           activeShouts = activeShouts.add(div);
         }
@@ -185,10 +188,10 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       on(map, 'extent-change', function (extent, delta, levelChange, detail) {
         calculateZones(map.geographicExtent);
       });
-      on(map, 'click', function (evt) {
-        map.centerAt(evt.mapPoint);
-      })
       on(map, 'pan', function (extent) {
+        if (!activeShouts) {
+          return;
+        };
         var d = extent.delta;
         moveShouts(d.x - lastDelta.x, d.y - lastDelta.y);
         lastDelta = d;  
@@ -269,19 +272,30 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       };
     }
 
-    var $shoutInput = jQuery('#shout').on('blur', function (ev) {
-      var text = $shoutInput.val();
-      if (!text) {
-        return;
-      };
-      var shout = {
-        text : text,
-        timeout : 60,
-        location : centerLoc,
-        timestamp : new Date().getTime()
-      };
-      shoutOut(shout);
-    });
+    var sendShout = function (ev) {
+      if (!demoRun) {
+        iterate(0);
+        demoRun = true;
+      } else {
+        var text = $shoutInput.val();
+        if (!text) {
+          return;
+        };
+        setTimeout(function() {
+          $shoutInput.val('');
+        });
+        var shout = {
+          text : text,
+          timeout : 60,
+          location : centerLoc,
+          timestamp : new Date().getTime()
+        };
+        shoutOut(shout);
+      }
+    };
+    
+    var $shoutInput = jQuery('#shout').blur(sendShout);
+    var $shoutButton = jQuery('.shoutBox i').click(sendShout);
 
   }
 );

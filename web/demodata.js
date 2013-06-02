@@ -28,11 +28,14 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       mapCoords = mapDiv.position();
     });
 
+    var shoutCount = 0;
+
     function displayShout (shout, own) {
       var div = jQuery(shoutTpl.replace('$TEXT',shout.text));
       var coords = shout.location;
       var pt = map.toScreen(new Point(coords.longitude, coords.latitude));
       div.css({
+        zIndex : 1000 + shoutCount++,
         left : pt.x,
         top : pt.y
       });
@@ -270,11 +273,32 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     }
 
     var firstMess = "Just De-boarded for Comic-Con!!! What's the best way into town?";
+    var demoRun = false;
 
-    var $shoutInput = jQuery('#shout').val(firstMess).blur(function (ev) {
-      iterate(0);
-    });
+    var sendShout = function (ev) {
+      if (!demoRun) {
+        iterate(0);
+        demoRun = true;
+      } else {
+        var text = $shoutInput.val();
+        if (!text) {
+          return;
+        };
+        setTimeout(function() {
+          $shoutInput.val('');
+        });
+        var shout = {
+          text : text,
+          timeout : 60,
+          location : centerLoc,
+          timestamp : new Date().getTime()
+        };
+        shoutOut(shout);
+      }
+    };
     
+    var $shoutInput = jQuery('#shout').blur(sendShout);
+    var $shoutButton = jQuery('.shoutBox i').click(sendShout);
     var demodata = [
       {
         shout : {
@@ -285,7 +309,8 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
             longitude : -104.677734
           }
         },
-        delay : 4
+        delay : 4,
+        zoom : 12
       },
       {
         shout : {
@@ -303,7 +328,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
           text : "Dude for that price GO UBER!!! :)",
           timeout : 11,
           location : {
-            latitude : 39.727257 ,
+            latitude : 39.727257,
             longitude : -104.911880
           }
         },
@@ -311,7 +336,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       },
       {
         shout : {
-          text : "The Shuttle's only $",
+          text : "The Shuttle's only $30",
           timeout : 11,
           location : {
             latitude : 39.761047 ,
@@ -351,7 +376,8 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
             longitude : -104.995480
           }
         },
-        delay : 4
+        delay : 4,
+        zoom : 16
       },
       {
         shout : {
@@ -428,7 +454,8 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
             longitude : -104.981833
           }
         },
-        delay : 7
+        delay : 7,
+        zoom : 15
       },
       {
         shout : {
@@ -461,7 +488,19 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
             longitude : -104.677734
           }
         },
-        delay : 4
+        delay : 15,
+        zoom : 15
+      },
+      {
+        shout : {
+          text : "Peace out #Hack4Colorado",
+          timeout : 120,
+          location : {
+            latitude: 39.7334572,
+            longitude: -104.9925055
+          }
+        },
+        zoom : 15
       }
     ]
       
@@ -469,21 +508,25 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var iterate = function (index){
       var shout = demodata[index].shout;
       shout.timestamp = new Date().getTime();
-      centerIfNeeded(shout, function() {
+      centerIfNeeded(shout, demodata[index].zoom, function() {
         shoutOut(shout);
-        setTimeout(function(){
-          iterate(index + 1);
-        }, demodata[index].delay*1000);
+        if (demodata[index].delay) {
+          setTimeout(function(){
+            iterate(index + 1);
+          }, demodata[index].delay*1000);
+        };
       });
     }
 
-    var centerIfNeeded = function (shout, cb) {
+    var lastZoom = 12;
+    var centerIfNeeded = function (shout, zoom, cb) {
       var coords = shout.location;
-      if (coords.latitude < currentBounds.left
-       || coords.latitude > currentBounds.right
-       || coords.longitude < currentBounds.top
-       || coords.longitude > currentBounds.bottom) {
-        map.centerAndZoom(new Point(coords.longitude, coords.latitude), 13).then(cb);
+      if ((zoom && zoom != lastZoom) || (coords.longitude < currentBounds.left
+             || coords.longitude > currentBounds.right
+             || coords.latitude < currentBounds.top
+             || coords.latitude > currentBounds.bottom)) {
+        lastZoom = zoom;
+        map.centerAndZoom(new Point(coords.longitude, coords.latitude), zoom).then(cb);
         //cb();
       } else {
         cb();
