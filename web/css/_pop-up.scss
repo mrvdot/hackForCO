@@ -1,32 +1,29 @@
 .shout-box-wrapper {
 	position: absolute;
-	top: 400px; /*temp placement*/
-	right:400px; /*temp placement*/
 	display: inline-block; 
 	width: 150px;
-	z-index: 2;
+	z-index: 1000;
 }
 
 .shout-box {
 	padding: 10px;
 	position: absolute;
-	right: 0;
-	bottom: 0px;
-	background: rgba($white, 0.5);
-	border: 1px solid rgba($black, 0.7);
+	left: 0;
+	bottom: 10px;
+	background: rgba(darken($blue-light, 50%),0.5);
 	@include border-radius(10px);
-}
+} 
 
 .shout-box:after {
    content:' ';
    display:block;
    position:absolute;
-   bottom:-10px;
-   left:0px;
+   top:100%;
+   left:10px;
    width:0;
-   border-width:15px 15px 0;
+   border-width:10px 10px 0;
    border-style:solid;
-   border-color: rgba($white, 0.5) transparent;
+   border-color: rgba(darken($blue-light, 50%),0.5) transparent;
 }
 
 .shout {

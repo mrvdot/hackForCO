@@ -50,9 +50,25 @@ $white:         #FFF;
 }
 
 .icon-submit {
-    color:$blue-dark;
+    font-size: 40px;
+    color: rgba($white, 0.5);
+    background: rgba(darken($blue-light, 50%),0.5);
+    padding-right: 10px;
+    border: 1px solid rgba($blue-dark,0.5);
+    @include border-radius(10px);
+    @include box-shadow(rgba($blue-dark,0.5) 0px 3px 0); 
+    @include transition(all 0.3s);
 }
 
+
+.icon-submit:hover {
+    color: rgba($white, 0.9);
+/*    background: rgba(darken($blue-light, 50%),1);
+*/    padding-right: 10px;
+    cursor: pointer;
+    border: 1px solid rgba($blue-dark,0.5);
+    @include border-radius(10px);
+}
 
 
 

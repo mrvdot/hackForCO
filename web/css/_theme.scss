@@ -29,9 +29,11 @@ header {
 }
 
 .wrap {
+	position: relative;
 	max-width: 1024px;
 	min-height: 400px;
 	margin: 0 auto;
+	overflow: hidden;
 	@include border-radius(10px);
 }
 
