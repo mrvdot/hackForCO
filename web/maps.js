@@ -269,7 +269,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       };
     }
 
-    var $shoutInput = jQuery('#shout').blur(function (ev) {
+    var $shoutInput = jQuery('#shout').on('blur', function (ev) {
       var text = $shoutInput.val();
       if (!text) {
         return;

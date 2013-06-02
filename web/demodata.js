@@ -269,24 +269,16 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       };
     }
 
-    var $shoutInput = jQuery('#shout').blur(function (ev) {
-      var text = $shoutInput.val();
-      if (!text) {
-        return;
-      };
-      var shout = {
-        text : text,
-        timeout : 60,
-        location : centerLoc,
-        timestamp : new Date().getTime()
-      };
-      shoutOut(shout);
+    var firstMess = "Just De-boarded for Comic-Con!!! What's the best way into town?";
+
+    var $shoutInput = jQuery('#shout').val(firstMess).blur(function (ev) {
+      iterate(0);
     });
     
     var demodata = [
       {
         shout : {
-          text : "Just De-boarded for Comic-Con!!! What's the best way into town?",
+          text : firstMess,
           timeout : 11,
           location : {
             latitude : 39.849139 ,
@@ -477,15 +469,15 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var iterate = function (index){
       var shout = demodata[index].shout;
       shout.timestamp = new Date().getTime();
-      var centerUSNG = org.mymanatee.common.usng.LLtoUSNG(shout.location.latitude, shout.location.longitude, 4);
-      var centerZone = usngToPrefix(centerUSNG);
-      shoutOut(shout);
-      setTimeout(function(){
-        iterate(index + 1);
-      }, demodata[index].delay*1000);
+      centerIfNeeded(shout, function() {
+        shoutOut(shout);
+        setTimeout(function(){
+          iterate(index + 1);
+        }, demodata[index].delay*1000);
+      });
     }
-    setTimeout(function(){
+    /*setTimeout(function(){
       iterate(0);
-    }, 20000 );
+    }, 20000 );//*/
   }
 );
