@@ -43,14 +43,11 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
 
     function monitorShouts(zone) {
       var n = 'Nei.ghbor.Net' + zone + 'shoutout';
-      console.log('monitoring shouts from',n);
       var name = new Name(n)
       var interest = new Interest(name)
       var template = {};
       var shoutCallback = function (ndn, name, content, moot) {
-        console.log('shoutCallback', ndn, name);
         if (!ndn) {
-          console.log('no ndn, exclusions',exclusions);
           setTimeout(function () {
             monitorShouts(zone);
           }, 250);
@@ -72,32 +69,19 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       ndn.expressInterest(name, shoutClosure, template);
     }
 
-    var ShoutoutAsyncPutClosure = function (ndn, name, content, moot) {
-      AsyncPutClosure.call(this);
-      this.content = content;
-      this.ndn = ndn;
-      this.name = name;
-      this.signed = signed;
-    }
-
-    ShoutoutAsyncPutClosure.prototype.upcall = function(ndn, name, content, timeout) {
-      console.log('ShoutoutAsyncPutClosure', ndn, name, content, timeout);
-    }
-
     function shoutOut (shout) {
       var prefixComponents = centerZone.split('/');
       var prefix = 'Nei.ghbor.Net';
-      //displayShout(shout, true);
+      displayShout(shout, true);
       for (var i=0; i<6 ; i++) { 
         prefix = prefix + '/' + prefixComponents[i];
-        ndn[i] = new NDN({host: '10.18.1.118'});
+        ndn[i] = new NDN({host: 'localhost'});
         
         var namePrefix = new Name(prefix + '/shoutout')
         var name = new Name(prefix + '/shoutout/' + shout.timestamp)
         var thisndn = ndn[i];
         var signedInfo = new SignedInfo();
         signedInfo.freshnessSeconds = shout.timeout;
-        console.log('registering prefix', prefix + '/shoutout');
         if (NDN.CSTable[i] == undefined) {
           thisndn.registerPrefix(namePrefix, new AsyncPutClosure(thisndn, name, JSON.stringify(shout), signedInfo));
         } else {
