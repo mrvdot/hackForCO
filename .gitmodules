@@ -1,3 +1,0 @@
-[submodule "ndn-js"]
-	path = ndn-js
-	url = git://github.com/remap/ndn-js.git
