@@ -71,7 +71,12 @@ $white:         #FFF;
 }
 
 
-
+.emotion {
+    display: inline-block;
+    padding: 0 4px;
+    font: 16px/16px normal Verdana, sans-serif;
+    @include rotate(90deg);
+}
 
 
 
