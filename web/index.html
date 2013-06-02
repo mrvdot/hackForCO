@@ -6,14 +6,29 @@
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
     <title></title>
     <link rel="stylesheet" href="esri.css">
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 		<script src="3.4.js"></script>
   </head>
   <body class="claro">
-  	<div id="myMap"></div>
-  	<div class="shoutBox">
-  		<input type="text" id="shout" placeholder="Shout out!" />
-  	</div>
+  	<header>
+  <h1 class="brand">Sh<span class="icon icon-pin">,</span>ut!</h1>
+</header>
+
+    <section class="wrap">
+
+      <div id="myMap"></div>
+      
+      <div class="shoutBox">
+        <input class="input-field" type="text" id="shout" placeholder="Shout out!" />
+      </div>
+
+      <p class="icon">Y</p>
+
+    </section>  <!--  END WRAP -->
+
+
+
   	<script type="text/javascript" src="usng.js"></script>
   	<script type="text/javascript" src="ndn/ndn-js.js"></script>
   	<script type="text/javascript" src="ndn/ndn-closures.js"></script>
