@@ -8,7 +8,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     // Create map
     var map
       , usng = org.mymanatee.common.usng
-      , ndn = new NDN({host: location.host.split(':')[0]})
+      , ndn = new NDN({host: location.host.split(':')[0], port : 9797})
       , ndnSockets = []
       , pts
       , mapCoords = {}
@@ -32,6 +32,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var shoutCount = 0;
 
     function displayShout (shout, own) {
+      console.log('displaying', shout);
       var className = own ? 'my-icon-shout-pin' : 'icon-shout-pin';
       var div = jQuery(shoutTpl.replace('$TEXT',shout.text).replace('$CLASS', className));
       var coords = shout.location;
@@ -61,21 +62,22 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       var specificEast = locationArray[3].split('');
       return locationArray[0] + '/' + locationArray[1] + '/' + specificNorth[0] + specificEast[0] + '/' + specificNorth[1] + specificEast[1] + '/' + specificNorth[2] + specificEast[2] + '/' + specificNorth[3] + specificEast[3] + '/';
     }
-    var exclusions = []
-      , shoutCallback;
+    var exclusions = [];
 
     function monitorShouts(zone) {
       var n = 'Nei.ghbor.Net' + zone + 'shoutout';
       var name = new Name(n)
       var interest = new Interest(name)
       var template = {};
-      shoutCallback = function (ndn, name, content, moot) {
+      var shoutCallback = function (ndn, name, content, moot) {
+        console.log('shoutCallback');
         if (!ndn) {
           setTimeout(function () {
             monitorShouts(zone);
           }, 250);
           return;
         };
+        console.log('content', DataUtils.toString(content));
         var shout = DataUtils.toString(content);
         shout = JSON.parse(shout);
         var hash = shout.text + shout.timestamp;
@@ -103,7 +105,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       displayShout(shout, true);
       for (var i=0; i<6 ; i++) { 
         prefix = prefix + '/' + prefixComponents[i];
-        ndnSockets[i] = new NDN({host: location.host.split(':')[0]});
+        ndnSockets[i] = new NDN({host: location.host.split(':')[0], port : 9797});
         
         var namePrefix = new Name(prefix + '/shoutout')
         var name = new Name(prefix + '/shoutout/' + shout.timestamp)
