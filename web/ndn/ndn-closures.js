@@ -50,7 +50,6 @@ ContentClosure.prototype.upcall = function(kind, upcallInfo) {
     if (kind == Closure.UPCALL_INTEREST_TIMED_OUT) {
         if (!this.didOnStart) {
             // We have not received a segments to start the content yet, so assume the URI can't be fetched.
-            console.log('interest timed out');
             this.callback();
             return Closure.RESULT_OK;
         }

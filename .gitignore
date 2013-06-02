@@ -1,0 +1,8 @@
+.env
+Procfile
+npm-debug.log
+log/*
+!log/.gitkeep
+repo/*
+!repo/.gitkeep
+.idea
