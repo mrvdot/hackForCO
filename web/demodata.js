@@ -39,7 +39,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       jQuery('.wrap').prepend(div).find('p').slideDown();
       setTimeout(function() {
         if (!activeShouts) {
-          mapDebug = activeShouts = jQuery('.shout-box-wrapper');
+          activeShouts = jQuery('.shout-box-wrapper');
         } else {
           activeShouts = activeShouts.add(div);
         }
@@ -185,10 +185,10 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       on(map, 'extent-change', function (extent, delta, levelChange, detail) {
         calculateZones(map.geographicExtent);
       });
-      on(map, 'click', function (evt) {
-        map.centerAt(evt.mapPoint);
-      })
       on(map, 'pan', function (extent) {
+        if (!activeShouts) {
+          return;
+        };
         var d = extent.delta;
         moveShouts(d.x - lastDelta.x, d.y - lastDelta.y);
         lastDelta = d;  
@@ -475,6 +475,19 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
           iterate(index + 1);
         }, demodata[index].delay*1000);
       });
+    }
+
+    var centerIfNeeded = function (shout, cb) {
+      var coords = shout.location;
+      if (coords.latitude < currentBounds.left
+       || coords.latitude > currentBounds.right
+       || coords.longitude < currentBounds.top
+       || coords.longitude > currentBounds.bottom) {
+        map.centerAndZoom(new Point(coords.longitude, coords.latitude), 13).then(cb);
+        //cb();
+      } else {
+        cb();
+      }
     }
     /*setTimeout(function(){
       iterate(0);
