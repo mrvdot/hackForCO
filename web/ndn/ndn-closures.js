@@ -131,7 +131,6 @@ ContentClosure.prototype.upcall = function(kind, upcallInfo) {
 
     if (segmentNumber == null) {
         // We are not doing segments, so just finish.
-        console.log('contentObject : ',contentObject);
         this.fullcontent = DataUtils.toString(contentObject.content);
         var components = contentObject.name.components.slice
             (0, contentObject.name.components.length );
@@ -178,13 +177,11 @@ ContentClosure.prototype.upcall = function(kind, upcallInfo) {
         
         if (this.finalSegmentNumber != null && segmentNumber == this.finalSegmentNumber) {
             // Finished.
-            console.log('finished');
             //console.log('segmentNumber === this.finalSegmentNumber:', segmentNumber === this.finalSegmentNumber);
             var nameContentDigest = contentObject.name.getContentDigestValue();
             if (nameContentDigest != null &&
                 !DataUtils.arraysEqual(nameContentDigest, this.contentSha256.finalize()))
                 // TODO: How to show the user an error for invalid digest?
-                console.log("Content does not match digest in name " + contentObject.name.to_uri());
             this.done = true;
             // console.log('kinda hungry');
             // console.log(this.fullcontent);
@@ -233,7 +230,6 @@ ContentClosure.prototype.upcall = function(kind, upcallInfo) {
     
     return Closure.RESULT_OK;
   } catch (ex) {
-        console.log("ContentClosure.upcall exception: " + ex + ":" + ex.stack);
         return Closure.RESULT_ERR;
   }
 

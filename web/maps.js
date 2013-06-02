@@ -8,7 +8,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     // Create map
     var map
       , usng = org.mymanatee.common.usng
-      , ndn = new NDN({host: 'localhost'})
+      , ndn = new NDN({host: location.host.split(':')[0]})
       , pts
       , mapCoords = {}
       , mapDiv
@@ -18,7 +18,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
         '<div class="shout-box">' + 
           '<p class="shout" style="display:none;">$TEXT</p>' + 
         '</div>' + 
-        '<i class="icon icon-shout-pin">,</i>' + 
+        '<i class="icon $CLASS">,</i>' + 
       '</div>';
 
     jQuery(window).on('resize load', function () {
@@ -31,7 +31,8 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var shoutCount = 0;
 
     function displayShout (shout, own) {
-      var div = jQuery(shoutTpl.replace('$TEXT',shout.text));
+      var className = own ? 'my-icon-shout-pin' : 'icon-shout-pin';
+      var div = jQuery(shoutTpl.replace('$TEXT',shout.text).replace('$CLASS', className));
       var coords = shout.location;
       var pt = map.toScreen(new Point(coords.longitude, coords.latitude));
       div.css({
@@ -101,7 +102,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       displayShout(shout, true);
       for (var i=0; i<6 ; i++) { 
         prefix = prefix + '/' + prefixComponents[i];
-        ndn[i] = new NDN({host: 'localhost'});
+        ndn[i] = new NDN({host: location.host.split(':')[0]});
         
         var namePrefix = new Name(prefix + '/shoutout')
         var name = new Name(prefix + '/shoutout/' + shout.timestamp)
@@ -273,25 +274,20 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     }
 
     var sendShout = function (ev) {
-      if (!demoRun) {
-        iterate(0);
-        demoRun = true;
-      } else {
-        var text = $shoutInput.val();
-        if (!text) {
-          return;
-        };
-        setTimeout(function() {
-          $shoutInput.val('');
-        });
-        var shout = {
-          text : text,
-          timeout : 60,
-          location : centerLoc,
-          timestamp : new Date().getTime()
-        };
-        shoutOut(shout);
-      }
+      var text = $shoutInput.val();
+      if (!text) {
+        return;
+      };
+      setTimeout(function() {
+        $shoutInput.val('');
+      });
+      var shout = {
+        text : text,
+        timeout : 60,
+        location : centerLoc,
+        timestamp : new Date().getTime()
+      };
+      shoutOut(shout);
     };
     
     var $shoutInput = jQuery('#shout').blur(sendShout);
