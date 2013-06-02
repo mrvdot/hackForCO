@@ -9,24 +9,34 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var map
       , usng = org.mymanatee.common.usng
       , ndn = new NDN({host: 'localhost'})
-      , shoutSymbol = createShoutSymbol()
-      , ownShoutSymbol = createOwnShoutSymbol()
-      , polygonSymbol
-      , multiPointGraphic
-      , polylineGraphic
-      , polygonGraphic
-      , multiPoint
       , pts
-      , activeToolId;
+      , mapCoords = {}
+      , mapDiv
+      , excludedHashes = []
+      , activeShouts;
+
+    jQuery(window).on('resize load', function () {
+      if (!mapDiv) {
+        mapDiv = jQuery('#myMap');
+      };
+      mapCoords = mapDiv.position();
+    });
 
     function displayShout (shout, own) {
-      var symbol = own ? ownShoutSymbol : shoutSymbol;
+      var div = jQuery('<div class="popup" style="position:absolute; background:white; z-index:1000;"><span class="text">' + shout.text + '</span></div>');
       var coords = shout.location;
-      var pt = new Point(coords.longitude, coords.latitude);
-      var attributes = {"Lat":coords.latitude.toFixed(2),"Lon":coords.longitude.toFixed(2)};
-      var infoTemplate = new InfoTemplate("Shout!",shout.text);
-      var graphic = new Graphic(pt,shoutSymbol,attributes,infoTemplate);
-      map.graphics.add(graphic);
+      var pt = map.toScreen(new Point(coords.longitude, coords.latitude));
+      div.css({
+        left : mapCoords.left + pt.x,
+        top : mapCoords.top + pt.y
+      });
+      jQuery('body').prepend(div);
+      if (!activeShouts) {
+        activeShouts = jQuery('.popup');
+      } else {
+        activeShouts.add(div);
+      }
+      return;
       setTimeout(function () {
         map.infoWindow.hide();
         map.graphics.remove(graphic);
@@ -39,14 +49,15 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       var specificEast = locationArray[3].split('');
       return locationArray[0] + '/' + locationArray[1] + '/' + specificNorth[0] + specificEast[0] + '/' + specificNorth[1] + specificEast[1] + '/' + specificNorth[2] + specificEast[2] + '/' + specificNorth[3] + specificEast[3] + '/';
     }
-    var exclusions = [];
+    var exclusions = []
+      , shoutCallback;
 
     function monitorShouts(zone) {
       var n = 'Nei.ghbor.Net' + zone + 'shoutout';
       var name = new Name(n)
       var interest = new Interest(name)
       var template = {};
-      var shoutCallback = function (ndn, name, content, moot) {
+      shoutCallback = function (ndn, name, content, moot) {
         if (!ndn) {
           setTimeout(function () {
             monitorShouts(zone);
@@ -55,6 +66,13 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
         };
         var shout = DataUtils.toString(content);
         shout = JSON.parse(shout);
+        var hash = shout.text + shout.timestamp;
+        if (jQuery.inArray(hash, excludedHashes) > -1) {
+          return;
+        } else {
+          excludedHashes.push(hash);
+          console.log('added',hash,'to',excludedHashes);
+        }
         console.log(name, shout, moot);
         displayShout(shout);
         exclusions.push(DataUtils.toNumbersFromString(moot));
@@ -72,6 +90,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     function shoutOut (shout) {
       var prefixComponents = centerZone.split('/');
       var prefix = 'Nei.ghbor.Net';
+      excludedHashes.push(shout.text + shout.timestamp);
       displayShout(shout, true);
       for (var i=0; i<6 ; i++) { 
         prefix = prefix + '/' + prefixComponents[i];
@@ -156,36 +175,25 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       var graphic = new Graphic(pt,pointSymbol,attributes,infoTemplate);
       map.graphics.add(graphic);
     }
-    
-    function createShoutSymbol() {
-      return new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 7,
-        new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-        new Color("green", 1),
-        new Color("green"))); 
-    }
 
-    function createOwnShoutSymbol() {
-      return new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_DIAMOND, 7,
-        new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-        new Color("blue", 1),
-        new Color("blue"))); 
-    }
-
-    function clearAddGraphics() {
-      map.infoWindow.hide();
-      map.graphics.clear();
-      multiPointGraphic = null;
-      polylineGraphic = null;
-      polygonGraphic = null;
-      pts = null;
-    }
-
+    var lastDelta = {x : 0, y : 0};
     function bindEvents (map) {
-      dojo.connect(map, 'onExtentChange', function (extent, delta, levelChange, detail) {
+      on(map, 'extent-change', function (extent, delta, levelChange, detail) {
+        console.log('extent-change');
         calculateZones(map.geographicExtent);
       });
-      map.on('click', function (evt) {
-        map.centerAt(evt.mapPoint);
+      on(map, 'pan', function (extent) {
+        var d = extent.delta;
+        moveShouts(d.x - lastDelta.x, d.y - lastDelta.y);
+        lastDelta = d;  
+      });
+    }
+
+    function moveShouts (x, y) {
+      console.log('moving',x,'by',y);
+      activeShouts.css({
+        left : '+=' + x + 'px',
+        top : '+=' + y + 'px'
       });
     }
 
