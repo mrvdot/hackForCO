@@ -1,6 +1,6 @@
 var connect = require('connect');
 connect.createServer(
-    connect.static(__dirname)
+    connect.static('../web')
 ).listen(8080);
 
 

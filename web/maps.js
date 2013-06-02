@@ -13,7 +13,13 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       , mapCoords = {}
       , mapDiv
       , excludedHashes = []
-      , activeShouts;
+      , activeShouts
+      , shoutTpl = '<div class="shout-box-wrapper">' + 
+        '<div class="shout-box">' + 
+          '<p class="shout" style="display:none;">$TEXT</p>' + 
+        '</div>' + 
+        '<i class="icon icon-shout-pin">,</i>' + 
+      '</div>';
 
     jQuery(window).on('resize load', function () {
       if (!mapDiv) {
@@ -23,23 +29,24 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     });
 
     function displayShout (shout, own) {
-      var div = jQuery('<div class="popup" style="position:absolute; background:white; z-index:1000;"><span class="text">' + shout.text + '</span></div>');
+      var div = jQuery(shoutTpl.replace('$TEXT',shout.text));
       var coords = shout.location;
       var pt = map.toScreen(new Point(coords.longitude, coords.latitude));
       div.css({
-        left : mapCoords.left + pt.x,
-        top : mapCoords.top + pt.y
+        left : pt.x,
+        top : pt.y
       });
-      jQuery('body').prepend(div);
-      if (!activeShouts) {
-        activeShouts = jQuery('.popup');
-      } else {
-        activeShouts.add(div);
-      }
-      return;
-      setTimeout(function () {
-        map.infoWindow.hide();
-        map.graphics.remove(graphic);
+      jQuery('.wrap').prepend(div).find('p').slideDown();
+      setTimeout(function() {
+        if (!activeShouts) {
+          mapDebug = activeShouts = jQuery('.shout-box-wrapper');
+        } else {
+          activeShouts = activeShouts.add(div);
+        }
+      });
+      setTimeout(function() {
+        activeShouts = activeShouts.not(div);
+        div.fadeOut();
       }, shout.timeout * 1000);
     }
 
@@ -71,12 +78,9 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
           return;
         } else {
           excludedHashes.push(hash);
-          console.log('added',hash,'to',excludedHashes);
         }
-        console.log(name, shout, moot);
         displayShout(shout);
         exclusions.push(DataUtils.toNumbersFromString(moot));
-        console.log('exclusions', exclusions);
         var newname = new Name(name);
         var interest = new Interest(newname);
         template.exclude = new Exclude(exclusions);
@@ -179,22 +183,90 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var lastDelta = {x : 0, y : 0};
     function bindEvents (map) {
       on(map, 'extent-change', function (extent, delta, levelChange, detail) {
-        console.log('extent-change');
         calculateZones(map.geographicExtent);
       });
+      on(map, 'click', function (evt) {
+        map.centerAt(evt.mapPoint);
+      })
       on(map, 'pan', function (extent) {
         var d = extent.delta;
         moveShouts(d.x - lastDelta.x, d.y - lastDelta.y);
         lastDelta = d;  
+      });//*/
+      on(map, 'pan-end', function () {
+        lastDelta = {x : 0, y : 0};
+        removeLostShouts();
+      });
+      var zoomStartExtent;
+      on(map, 'zoom-start', function (data) {
+        zoomStartExtent = data.extent;
+        hideShouts();
+      });
+      on(map, 'zoom-end', function (data) {
+        repositionAndShowShouts(zoomStartExtent, data.extent, data.zoomFactor, data.anchor);
       });
     }
 
     function moveShouts (x, y) {
-      console.log('moving',x,'by',y);
       activeShouts.css({
         left : '+=' + x + 'px',
         top : '+=' + y + 'px'
       });
+    }
+
+    function hideShouts () {
+      if (!activeShouts) {
+        return;
+      };
+      activeShouts.css('visibility','hidden');
+    }
+
+    function repositionAndShowShouts (start, end, factor, anchor) {
+      if (!activeShouts) {
+        return;
+      };
+      var x = anchor.x;
+      var y = anchor.y;
+      var mw = mapDiv.width();
+      var mh = mapDiv.height();
+      var shoutsToRemove = jQuery('.shouts.remove');
+      activeShouts.each(function (idx, s) {
+        s = jQuery(s);
+        var spos = s.position();
+        var newPos = {
+          visibility : 'visible',
+          left : spos.left + ((spos.left - x) * (factor - 1)),
+          top : spos.top + ((spos.top - y) * (factor - 1))
+        }
+        if (false && (newPos.left < 0 || newPos.left > mw || newPos.top < 0 || newPos.top > mh)) {
+          shoutsToRemove = shoutsToRemove.add(s);
+        } else {
+          s.css(newPos);
+        }
+      });
+      if (shoutsToRemove.length) {
+        //Really should drop out of excludes so we refetch them if we zoom back in
+        activeShouts = activeShouts.not(shoutsToRemove);
+        shoutsToRemove.remove();
+      };
+    }
+
+    function removeLostShouts () {
+      return;//using overflow for now - reexamine if number of shouts starts to hurt performance
+      var mw = mapDiv.width();
+      var mh = mapDiv.height();
+      var shoutsToRemove = jQuery('.shouts.remove');
+      activeShouts.each(function (idx, s) {
+        s = jQuery(s);
+        var spos = s.position();
+        if (spos.left < 0 || spos.left > mw || spos.top < 0 || spos.top > mh) {
+          shoutsToRemove = shoutsToRemove.add(s);
+        }
+      });
+      if (shoutsToRemove.length) {
+        activeShouts = activeShouts.not(shoutsToRemove);
+        shoutsToRemove.remove();
+      };
     }
 
     var $shoutInput = jQuery('#shout').blur(function (ev) {
