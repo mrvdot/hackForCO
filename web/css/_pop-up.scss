@@ -1,7 +1,10 @@
 .shout-box-wrapper {
-	position: relative;
+	position: absolute;
+	top: 400px; /*temp placement*/
+	right:400px; /*temp placement*/
 	display: inline-block; 
 	width: 150px;
+	z-index: 2;
 }
 
 .shout-box {
