@@ -1,3 +1,6 @@
 [submodule "ndn-js"]
 	path = ndn-js
 	url = git://github.com/remap/ndn-js.git
+[submodule "relay-alchemy"]
+	path = relay-alchemy
+	url = git@github.com:dcunited001/relay-alchemy
