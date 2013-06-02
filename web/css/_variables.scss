@@ -3,13 +3,12 @@
 	-moz-box-sizing:border-box;
 }
 
-$tan: #D4C87D;
-$blue-light: #A7E1E2;
-$blue-dark: #112132; 
-
-.icon { 
-	font-family: icon;
-}
+$tan:           #D4C87D;
+$blue-light:    #A7E1E2;
+$blue-dark:     #112132;
+$red:           #E95846;
+$black:         #030508;
+$white:         #FFF;
 
 @font-face {
     font-family: 'HVD';
@@ -32,3 +31,46 @@ $blue-dark: #112132;
     font-weight: normal;
     font-style: normal;
 }
+
+.icon { 
+    font-family: icon;
+    font-family: 'icon';
+    font-size: 50px;
+    display: inline-block;
+}
+
+
+.icon-pin {
+    font-size: 70px;
+    letter-spacing: 5px;    
+    position: relative;
+    top: 5px;
+    margin: 0 5px 0 0;
+    @include rotate(20deg);
+}
+
+.icon-submit {
+    color:$blue-dark;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

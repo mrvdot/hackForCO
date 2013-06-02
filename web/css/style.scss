@@ -9,57 +9,5 @@ Version: 1.0
 
 @import 'compass/css3';
 @import 'variables';
-
-.icon {
-	font-family: 'icon';
-	font-size: 50px;
-	display: inline-block;
-}
- 
-body {
-	background: url(_/img/bg.png);
-}
-
-header {
-	text-transform: uppercase;
-	text-align: center;
-	padding: 25px 0 25px 0;
-	background: rgba($blue-light, 0.3);
-	border-bottom: 1px solid darken($blue-light, 50%);
-}
-
-.shoutBox {
-	font-size: 40px;
-	display: block;
-	margin:0 auto;
-}
-
-.icon-pin {
-	font-size: 70px;
-	letter-spacing: 5px;	
-	position: relative;
-	top: 5px;
-	margin: 0 5px 0 0;
-	@include rotate(20deg);
-}
-
-.icon-submit {
-	color:$blue-dark;
-}
-
-.brand {
-	font-size: 50px;
-	font-family: 'HVD';
-	color: $blue-dark;
-	margin: auto auto;
-	letter-spacing: 6px;
-	@include text-shadow(rgba(white, 0.5) 1px 1px 0);
-
-}
-
-.wrap {
-	max-width: 1024px;
-	min-height: 400px;
-	margin: 0 auto;
-	@include border-radius(10px);
-}
+@import 'theme';
+@import 'pop-up'; 

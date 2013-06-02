@@ -1,0 +1,39 @@
+body {
+	background: url(_/img/bg.png);
+}
+
+header {
+	text-transform: uppercase;
+	text-align: center;
+	padding: 25px 0 25px 0;
+	background: rgba($blue-light, 0.3);
+	border-bottom: 1px solid darken($blue-light, 50%);
+}
+
+.brand {
+	font-size: 50px;
+	font-family: 'HVD';
+	color: $blue-dark;
+	margin: auto auto;
+	letter-spacing: 6px;
+	@include text-shadow(rgba(white, 0.5) 1px 1px 0);
+}
+
+.shoutBox {
+	font-size: 40px;
+	display: block;
+	margin:0 auto;
+}
+
+.wrap {
+	max-width: 1024px;
+	min-height: 400px;
+	margin: 0 auto;
+	@include border-radius(10px);
+}
+
+.site-footer {
+	min-height: 400px;
+	background: rgba($blue-light, 0.3);
+	border-top: 1px solid darken($blue-light, 50%);
+}

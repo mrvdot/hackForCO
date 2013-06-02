@@ -1,0 +1,48 @@
+.shout-box-wrapper {
+	position: relative;
+	display: inline-block; 
+	width: 150px;
+}
+
+.shout-box {
+	padding: 10px;
+	position: absolute;
+	right: 0;
+	bottom: 0px;
+	background: rgba($white, 0.5);
+	border: 1px solid rgba($black, 0.7);
+	@include border-radius(10px);
+}
+
+.shout-box:after {
+   content:' ';
+   display:block;
+   position:absolute;
+   bottom:-10px;
+   left:0px;
+   width:0;
+   border-width:15px 15px 0;
+   border-style:solid;
+   border-color: rgba($white, 0.5) transparent;
+}
+
+.shout {
+	font-family: sans-serif;
+}
+
+.icon-shout-pin {
+    font-size: 30px;
+    color: $red;
+    position: absolute;
+    -webkit-text-stroke: 1px darken($red, 80%);
+}
+
+.icon-shout-pin:before {
+    content: ',';
+    color: rgba($black, 0.7);
+    position:absolute;
+    margin: 3px 0 0 8px;
+    display: inline-block;
+    @include rotate(48deg);
+    -webkit-text-stroke: 0px $black;
+}
