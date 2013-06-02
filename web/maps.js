@@ -9,8 +9,8 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var map
       , usng = org.mymanatee.common.usng
       , ndn = new NDN({host: 'localhost'})
-      , pointSymbol
-      , lineSymbol
+      , shoutSymbol = createShoutSymbol()
+      , ownShoutSymbol = createOwnShoutSymbol()
       , polygonSymbol
       , multiPointGraphic
       , polylineGraphic
@@ -19,17 +19,16 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       , pts
       , activeToolId;
 
-    // Create symbols for the graphics
-    pointSymbol = createPointSymbol();
-
-    function displayShout (shout) {
+    function displayShout (shout, own) {
+      var symbol = own ? ownShoutSymbol : shoutSymbol;
       var coords = shout.location;
       var pt = new Point(coords.longitude, coords.latitude);
       var attributes = {"Lat":coords.latitude.toFixed(2),"Lon":coords.longitude.toFixed(2)};
       var infoTemplate = new InfoTemplate("Shout!",shout.text);
-      var graphic = new Graphic(pt,pointSymbol,attributes,infoTemplate);
+      var graphic = new Graphic(pt,shoutSymbol,attributes,infoTemplate);
       map.graphics.add(graphic);
       setTimeout(function () {
+        map.infoWindow.hide();
         map.graphics.remove(graphic);
       }, shout.timeout * 1000);
     }
@@ -44,11 +43,14 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
 
     function monitorShouts(zone) {
       var n = 'Nei.ghbor.Net' + zone + 'shoutout';
+      console.log('monitoring shouts from',n);
       var name = new Name(n)
       var interest = new Interest(name)
       var template = {};
       var shoutCallback = function (ndn, name, content, moot) {
+        console.log('shoutCallback', ndn, name);
         if (!ndn) {
+          console.log('no ndn, exclusions',exclusions);
           setTimeout(function () {
             monitorShouts(zone);
           }, 250);
@@ -70,9 +72,22 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       ndn.expressInterest(name, shoutClosure, template);
     }
 
+    var ShoutoutAsyncPutClosure = function (ndn, name, content, moot) {
+      AsyncPutClosure.call(this);
+      this.content = content;
+      this.ndn = ndn;
+      this.name = name;
+      this.signed = signed;
+    }
+
+    ShoutoutAsyncPutClosure.prototype.upcall = function(ndn, name, content, timeout) {
+      console.log('ShoutoutAsyncPutClosure', ndn, name, content, timeout);
+    }
+
     function shoutOut (shout) {
       var prefixComponents = centerZone.split('/');
       var prefix = 'Nei.ghbor.Net';
+      //displayShout(shout, true);
       for (var i=0; i<6 ; i++) { 
         prefix = prefix + '/' + prefixComponents[i];
         ndn[i] = new NDN({host: 'localhost'});
@@ -82,13 +97,13 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
         var thisndn = ndn[i];
         var signedInfo = new SignedInfo();
         signedInfo.freshnessSeconds = shout.timeout;
+        console.log('registering prefix', prefix + '/shoutout');
         if (NDN.CSTable[i] == undefined) {
-          thisndn.registerPrefix(namePrefix, new ShoutoutAsyncPutClosure(thisndn, name, JSON.stringify(shout), signedInfo));
+          thisndn.registerPrefix(namePrefix, new AsyncPutClosure(thisndn, name, JSON.stringify(shout), signedInfo));
         } else {
           NDN.CSTable[i].closure.content = JSON.stringify(shout);
           NDN.CSTable[i].closure.name = name;
         }
-        
       };
     }
 
@@ -157,24 +172,19 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       var graphic = new Graphic(pt,pointSymbol,attributes,infoTemplate);
       map.graphics.add(graphic);
     }
-    function addTempPoint(pt) {
-      if (!multiPointGraphic) {
-        multiPoint = new Multipoint(pt.spatialReference);
-        multiPoint.addPoint(pt);
-        multiPointGraphic = new Graphic(multiPoint,pointSymbol);
-        map.graphics.add(multiPointGraphic);
-      }
-      else {
-        multiPoint.addPoint(pt);
-        multiPointGraphic.setGeometry(multiPoint);
-      }
-    }
     
-    function createPointSymbol() {
-      return new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_SQUARE, 7,
+    function createShoutSymbol() {
+      return new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_CIRCLE, 7,
         new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
-        new Color([255, 0, 0]), 1),
-        new Color([255, 0, 0, 0.75])); 
+        new Color("green", 1),
+        new Color("green"))); 
+    }
+
+    function createOwnShoutSymbol() {
+      return new SimpleMarkerSymbol(SimpleMarkerSymbol.STYLE_DIAMOND, 7,
+        new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+        new Color("blue", 1),
+        new Color("blue"))); 
     }
 
     function clearAddGraphics() {
