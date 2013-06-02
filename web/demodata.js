@@ -276,7 +276,10 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var demoRun = false;
 
     var sendShout = function (ev) {
-      if (!demoRun) {
+      if (true) {
+        if (activeShouts) {
+          activeShouts.remove();
+        };
         iterate(0);
         demoRun = true;
       } else {
@@ -471,7 +474,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       {
         shout : {
           text : "Don't worry, we got it. Come by tomorrow to pick it up :)",
-          timeout : 10,
+          timeout : 19,
           location : {
             latitude : 39.740062 ,
             longitude : -104.979558

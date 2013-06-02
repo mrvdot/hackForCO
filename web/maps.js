@@ -1,26 +1,36 @@
 var mapDebug;
 
 require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/geometry/Polyline","esri/geometry/Polygon","esri/graphic", 
-  "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol", "esri/symbols/SimpleFillSymbol", "esri/InfoTemplate", "./utils.js", "dojo/_base/Color", "dojo/on", "dojo/dom", "dojo/domReady!"], 
-  function(Map, Point, Multipoint, Polyline, Polygon, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, InfoTemplate, utils, Color, on, dom) {
+  "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol", "esri/symbols/SimpleFillSymbol", "esri/InfoTemplate", "./utils.js", "dojo/_base/Color", "dojo/on", "dojo/dom", "dojo/request", "dojo/domReady!"], 
+  function(Map, Point, Multipoint, Polyline, Polygon, Graphic, SimpleMarkerSymbol, SimpleLineSymbol, SimpleFillSymbol, InfoTemplate, utils, Color, on, dom, request) {
     "use strict"
 
     // Create map
     var map
       , usng = org.mymanatee.common.usng
-      , ndn = new NDN({host: location.host.split(':')[0], port : 9797})
+      , ndn
       , ndnSockets = []
+      , wsport
       , pts
       , mapCoords = {}
       , mapDiv
       , excludedHashes = []
       , activeShouts
+      , host = location.host.split(':')[0]
       , shoutTpl = '<div class="shout-box-wrapper">' + 
         '<div class="shout-box">' + 
           '<p class="shout" style="display:none;">$TEXT</p>' + 
         '</div>' + 
         '<i class="icon $CLASS">,</i>' + 
       '</div>';
+
+    console.log('requesting to ',location.protocol + '//' + host + ':8080/socket');
+
+    request(location.protocol + '//' + host + ':8080/socket').then(function (response) {
+      var info = JSON.parse(response);
+      wsport = info.socket;
+      init();
+    });
 
     jQuery(window).on('resize load', function () {
       if (!mapDiv) {
@@ -105,7 +115,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       displayShout(shout, true);
       for (var i=0; i<6 ; i++) { 
         prefix = prefix + '/' + prefixComponents[i];
-        ndnSockets[i] = new NDN({host: location.host.split(':')[0], port : 9797});
+        ndnSockets[i] = new NDN({host: host, port : wsport});
         
         var namePrefix = new Name(prefix + '/shoutout')
         var name = new Name(prefix + '/shoutout/' + shout.timestamp)
@@ -158,25 +168,28 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       monitorShouts(topZone);
     }
 
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(function(position) {
-        var coords = centerLoc = position.coords;
-        map = mapDebug = new Map("myMap",{ 
+    function init () {
+      ndn = new NDN({host: location.host.split(':')[0], port : wsport});
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var coords = centerLoc = position.coords;
+          map = mapDebug = new Map("myMap",{ 
+            basemap: "streets",
+            center: [coords.longitude, coords.latitude],
+            zoom: 12
+          });
+          utils.autoRecenter(map);
+          bindEvents(map);
+        });
+      } else {
+        map = new Map("myMap",{ 
           basemap: "streets",
-          center: [coords.longitude, coords.latitude],
-          zoom: 12
+          center: [-79.40, 43.55],
+          zoom: 9,
         });
         utils.autoRecenter(map);
-        bindEvents(map);
-      });
-    } else {
-      map = new Map("myMap",{ 
-        basemap: "streets",
-        center: [-79.40, 43.55],
-        zoom: 9,
-      });
-      utils.autoRecenter(map);
-      //monitorShouts(coords);
+        //monitorShouts(coords);
+      }
     }
 
     // Add point graphic
