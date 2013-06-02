@@ -8,9 +8,12 @@
 .shout-box {
 	padding: 10px;
 	position: absolute;
-	left: 0;
+	color: $white;
+  letter-spacing: 2px;
+  left: 0;
 	bottom: 10px;
-	background: rgba(darken($blue-light, 50%),0.5);
+	z-index: 1000;
+  background: rgba(darken($blue-light, 50%),0.7);
 	@include border-radius(10px);
 } 
 
@@ -21,9 +24,10 @@
    top:100%;
    left:10px;
    width:0;
+   z-index: 1000;
    border-width:10px 10px 0;
    border-style:solid;
-   border-color: rgba(darken($blue-light, 50%),0.5) transparent;
+   border-color: rgba(darken($blue-light, 50%),0.7) transparent;
 }
 
 .shout {
