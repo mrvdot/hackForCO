@@ -6,3 +6,4 @@ log/*
 repo/*
 !repo/.gitkeep
 .idea
+.DS_Store
