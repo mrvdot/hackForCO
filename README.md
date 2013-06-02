@@ -1,4 +1,4 @@
-hackForCO
+Shout Out - Hack For Colorado
 =========
 
 ## Getting Started
@@ -28,6 +28,8 @@ git submodule update
 #### Install CCNx
 
 You'll need to install CCNx.  Here's the official [docs](http://www.ccnx.org/documentation/).
+
+There are also a ton of resources that can be found at the [Nei.ghbor.Net Ground](https://github.com/dcunited001/Nei.ghbor.Net-Ground/) repo.
 
 If you're on OSX, this should be simple with `brew`.
 
