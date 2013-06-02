@@ -7,6 +7,8 @@ $tan:           #D4C87D;
 $blue-light:    #A7E1E2;
 $blue-dark:     #112132;
 $red:           #E95846;
+$sad:       #C14450;
+$happy:         #4FC482;
 $black:         #030508;
 $white:         #FFF;
 
@@ -56,7 +58,7 @@ $white:         #FFF;
     padding-right: 10px;
     border: 1px solid rgba($blue-dark,0.5);
     @include border-radius(10px);
-    @include box-shadow(rgba($blue-dark,0.5) 0px 3px 0); 
+    @include box-shadow(rgba($blue-dark,0.9) 0px 3px 0); 
     @include transition(all 0.3s);
 }
 
@@ -71,13 +73,65 @@ $white:         #FFF;
 }
 
 
+.icon-shout-pin {
+    font-size: 30px;
+    color: $red;
+    position: absolute;
+    -webkit-text-stroke: 1px darken($red, 80%);
+}
+
+.icon-shout-pin:before {
+    content: ',';
+    color: rgba($black, 0.7);
+    position:absolute;
+    margin: 3px 0 0 8px;
+    display: inline-block;
+    @include rotate(48deg);
+    -webkit-text-stroke: 0px $black;
+}
+
+.my-icon-shout-pin {
+    @extend .icon-shout-pin;
+    font-size: 30px;
+    color: lighten($blue-dark,20%);
+    position: absolute;
+    -webkit-text-stroke: 1px darken($red, 80%);
+}
+
+.my-icon-shout-pin:before {
+    content: ',';
+    color: rgba($black, 0.7);
+    position:absolute;
+    margin: 3px 0 0 8px;
+    display: inline-block;
+    @include rotate(48deg);
+    -webkit-text-stroke: 0px $black;
+}
+
 .emotion {
     display: inline-block;
-    padding: 0 4px;
+    padding: 6px 6px;
     font: 16px/16px normal Verdana, sans-serif;
+    border: 1px solid black;
+    background: $white;
+    @include border-radius(100px);
     @include rotate(90deg);
 }
 
+.emoticon-happy {
+    @extend .emoticon;
+    background: yellow;
+}
+
+.emoticon-sad {
+    @extend .emoticon;
+    background: blue;
+}
+
+.emoticon-neutral {
+    @extend .emoticon;
+    background: gray;
+}
 
 
 
