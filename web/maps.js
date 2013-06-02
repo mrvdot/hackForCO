@@ -9,6 +9,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
     var map
       , usng = org.mymanatee.common.usng
       , ndn = new NDN({host: location.host.split(':')[0]})
+      , ndnSockets = []
       , pts
       , mapCoords = {}
       , mapDiv
@@ -102,11 +103,11 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       displayShout(shout, true);
       for (var i=0; i<6 ; i++) { 
         prefix = prefix + '/' + prefixComponents[i];
-        ndn[i] = new NDN({host: location.host.split(':')[0]});
+        ndnSockets[i] = new NDN({host: location.host.split(':')[0]});
         
         var namePrefix = new Name(prefix + '/shoutout')
         var name = new Name(prefix + '/shoutout/' + shout.timestamp)
-        var thisndn = ndn[i];
+        var thisndn = ndnSockets[i];
         var signedInfo = new SignedInfo();
         signedInfo.freshnessSeconds = shout.timeout;
         if (NDN.CSTable[i] == undefined) {

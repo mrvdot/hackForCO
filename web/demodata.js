@@ -392,7 +392,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       },
       {
         shout : {
-          text : "I wonder what the ratio of hero's to villains here is",
+          text : "I wonder what the ratio of heroes to villains here is",
           timeout : 10,
           location : {
             latitude : 39.743890 ,
@@ -403,7 +403,7 @@ require(["esri/map", "esri/geometry/Point", "esri/geometry/Multipoint", "esri/ge
       },
       {
         shout : {
-          text : "Only one way to tell: FIGHT FOR WORLD DOMINION",
+          text : "Only one way to tell: FIGHT FOR WORLD DOMINATION",
           timeout : 10,
           location : {
             latitude : 39.741250 ,
