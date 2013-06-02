@@ -1,0 +1,62 @@
+<?xml version = "1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"DTD/xhtml1-strict.dtd">
+<!-- 
+	See COPYING for copyright and distribution information.
+-->
+<html xmlns = "http://www.w3.org/1999/xhtml">
+<meta charset="UTF-8">
+
+<head>
+	<title>NDN Get via WebSocket</title>
+
+	<script type="text/javascript" src="ndn-js.js"></script>
+	
+	<script type="text/javascript" src="ndn-utils.js"></script>
+	<script type="text/javascript" src="ndn-closures.js"></script>
+	<script type="text/javascript" src="ndn-closures.js"></script>>
+	
+
+	<script type="text/javascript">
+		var ndn = new NDN({host: 'localhost'});
+    
+		function run() {
+		  
+		  var name = new Name(document.getElementById('interest').value)
+			var interest = new Interest(name)
+			var exclusions = [];
+      var template = {};
+      var shoutCallback = function (ndn, name, content, moot) {
+        shout = DataUtils.toString(content);
+        console.log(shout)
+        shout = JSON.parse(shout);
+        alert(shout.text);
+        exclusions.push(DataUtils.toNumbersFromString(moot));
+        var newname = new Name(name);
+        var interest = new Interest(newname);
+        alert(exclusions);
+        console.log(interest)
+        template.exclude = new Exclude(exclusions);
+        interest.exclude = template.exclude
+        ndn.expressInterest(newname, shoutClosure, template)
+		  }
+		  var shoutClosure = new ContentClosure(ndn, name, interest, shoutCallback)
+			ndn.expressInterest(name, shoutClosure, template);
+		}
+
+	</script>
+
+</head>
+<body >
+
+	<form>
+		Please Enter an Interest:<br />
+		<input id="interest" type="text" name="INTEREST" size="50" value="/%C1.M.S.localhost/%C1.M.SRV/ccnd/KEY" /> 
+	</form>
+
+	<button id="testBtn" onclick="run()">Fetch Content</button>
+
+	<p id="content">Content: <br/></p>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<html>
+<body>
+  <script src="//ajax.googleapis.com/ajax/libs/dojo/1.9.0/dojo/dojo.js"></script>
+  <script type="text/javascript" src="ndn-js.js"></script>
+  <script type="text/javascript" src="ndn-closures.js"></script>
+	<script type="text/javascript" src="usng.js"></script>
+  <script type="text/javascript" src="location.js"></script>
+  <script type="text/javascript">
+
+    var run = function () {
+      var thisShout = document.getElementById('shoutout').value;
+      var thisTimeout = document.getElementById('timeout').value;
+      var thisShoutout = {};
+      thisShoutout.text = thisShout;
+      thisShoutout.timeout = thisTimeout;
+      thisShoutout.location = userPosition;
+      thisShoutout.timestamp = new Date().getTime()
+      console.log(thisShoutout);
+      shoutOut(thisShoutout);
+
+    }
+  </script>
+  <form>
+		Please Enter a Shoutout:
+		<input id="shoutout" type="text" name="SHOUTOUT" size="50" value="" /> <br />
+		Please Enter a Timeout:
+		<input id="timeout" type="text" name="TIMEOUT" size="10" value="60" />
+	</form>
+  <button id="testBtn" onclick="run()">Shout</button>
+</body>
+</html>
