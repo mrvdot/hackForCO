@@ -1,7 +1,19 @@
-var connect = require('connect');
-connect.createServer(
-    connect.static('../web')
-).listen(8080);
+var connect = require('connect')
+	, route = require('connect-route')
+	, curWSPort =  9797;
+
+
+app = connect()
+	.use(connect.static(__dirname + '/../web'))
+	.use(route(function (router) {
+		router.get('/socket', function (req, res) {
+			console.log('creating socket');
+			var port = curWSPort++;
+			spinSocket(port);
+			res.end(JSON.stringify({ socket : port }));
+		})
+	}))
+	.listen(8080);
 
 
 /* 
@@ -28,7 +40,6 @@ var opt = require('node-getopt').create([
 var ccndhost = opt.options.ccnd || 'localhost';
 //console.log(ccndhost);
 
-var startWSPort =  9797;
 //console.log(wsport);
    // Set host to '0.0.0.0' so that we can accept connections from anywhere
                                                                 // This host has nothing to do with ccndhost.
